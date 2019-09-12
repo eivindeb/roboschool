@@ -72,6 +72,9 @@ class RoboschoolReacher(RoboschoolMujocoXmlEnv):
 
         state = self.calc_state()  # sets self.to_target_vec
 
+        self.history["success"].append(np.linalg.norm(self.to_target_vec) < 0.01)
+        info = {"is_success": self.history["success"][-1]}
+
         potential_old = self.potential
         self.potential = self.calc_potential()
 
@@ -85,7 +88,7 @@ class RoboschoolReacher(RoboschoolMujocoXmlEnv):
         self.done   += 0
         self.reward += sum(self.rewards)
         self.HUD(state, a, False)
-        return state, sum(self.rewards), False, {}
+        return state, sum(self.rewards), False, info
 
     def camera_adjust(self):
         x, y, z = self.fingertip.pose().xyz()
