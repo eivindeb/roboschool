@@ -31,7 +31,7 @@ class RoboschoolReacher(RoboschoolMujocoXmlEnv):
         self.elbow_joint   = self.jdict["joint1"]
 
         if state is not None:
-            c_j, e_j = state["central_joint"], state["elbow_joint"]
+            c_j, e_j = state["c_j"], state["e_j"]
         else:
             c_j = self.np_random.uniform(low=-3.14, high=3.14)
             e_j = self.np_random.uniform(low=-3.14, high=3.14)
@@ -95,3 +95,15 @@ class RoboschoolReacher(RoboschoolMujocoXmlEnv):
         x *= 0.5
         y *= 0.5
         self.camera.move_and_look_at(0.3, 0.3, 0.3, x, y, z)
+
+    def get_random_initial_states(self, n_states):
+        obs, states = [], []
+
+        for i in range(n_states):
+            obs.append(self.reset())
+            states.append({"state": {"c_j": self.central_joint.current_position()[0],
+                                     "e_j": self.elbow_joint.current_relative_position()[0]},
+                           "target": {"x": self.jdict["target_x"].current_position()[0],
+                                      "y": self.jdict["target_y"].current_position()[0]}})
+
+        return obs, states
