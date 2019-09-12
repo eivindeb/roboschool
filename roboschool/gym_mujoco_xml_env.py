@@ -28,12 +28,13 @@ class RoboschoolMujocoXmlEnv(gym.Env):
 
         self.model_xml = model_xml
         self.robot_name = robot_name
+        self.training = True
 
     def seed(self, seed=None):
         self.np_random, seed = gym.utils.seeding.np_random(seed)
         return [seed]
 
-    def reset(self):
+    def reset(self, **kwargs):
         if self.scene is None:
             self.scene = self.create_single_player_scene()
         if not self.scene.multiplayer:
@@ -66,7 +67,7 @@ class RoboschoolMujocoXmlEnv(gym.Env):
                 self.ordered_joints.append(j)
                 self.jdict[j.name] = j
         assert(self.cpp_robot)
-        self.robot_specific_reset()
+        self.robot_specific_reset(**kwargs)
         for r in self.mjcf:
             r.query_position()
         s = self.calc_state()    # optimization: calc_state() can calculate something in self.* for calc_potential() to use

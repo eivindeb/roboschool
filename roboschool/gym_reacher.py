@@ -11,20 +11,33 @@ class RoboschoolReacher(RoboschoolMujocoXmlEnv):
     '''
     def __init__(self):
         RoboschoolMujocoXmlEnv.__init__(self, 'reacher.xml', 'body0', action_dim=2, obs_dim=9)
+        self.history = {}
 
     def create_single_player_scene(self):
         return SingleRobotEmptyScene(gravity=0.0, timestep=0.0165, frame_skip=1)
 
-    TARG_LIMIT = 0.27
-    def robot_specific_reset(self):
-        self.jdict["target_x"].reset_current_position(self.np_random.uniform( low=-self.TARG_LIMIT, high=self.TARG_LIMIT ), 0)
-        self.jdict["target_y"].reset_current_position(self.np_random.uniform( low=-self.TARG_LIMIT, high=self.TARG_LIMIT ), 0)
+    TARG_LIMIT = 0.205
+    def robot_specific_reset(self, state=None, target=None):
+        if target is not None:
+            t_x, t_y = target["x"], target["y"]
+        else:
+            t_x = self.np_random.uniform(low=-self.TARG_LIMIT, high=self.TARG_LIMIT)
+            t_y = self.np_random.uniform(low=-self.TARG_LIMIT, high=self.TARG_LIMIT)
+        self.jdict["target_x"].reset_current_position(t_x, 0)
+        self.jdict["target_y"].reset_current_position(t_y, 0)
         self.fingertip = self.parts["fingertip"]
         self.target    = self.parts["target"]
         self.central_joint = self.jdict["joint0"]
         self.elbow_joint   = self.jdict["joint1"]
-        self.central_joint.reset_current_position(self.np_random.uniform( low=-3.14, high=3.14 ), 0)
-        self.elbow_joint.reset_current_position(self.np_random.uniform( low=-3.14, high=3.14 ), 0)
+
+        if state is not None:
+            c_j, e_j = state["central_joint"], state["elbow_joint"]
+        else:
+            c_j = self.np_random.uniform(low=-3.14, high=3.14)
+            e_j = self.np_random.uniform(low=-3.14, high=3.14)
+        self.central_joint.reset_current_position(c_j, 0)
+        self.elbow_joint.reset_current_position(e_j, 0)
+        self.history = {"success": []}
 
     def apply_action(self, a):
         assert( np.isfinite(a).all() )
