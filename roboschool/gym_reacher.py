@@ -73,7 +73,7 @@ class RoboschoolReacher(RoboschoolMujocoXmlEnv):
         state = self.calc_state()  # sets self.to_target_vec
 
         self.history["success"].append(np.linalg.norm(self.to_target_vec) < 0.01)
-        info = {"is_success": self.history["success"][-1]}
+        info = {"is_success": self.history["success"][-1], "success_time_frac": np.mean(self.history["success"])}
 
         potential_old = self.potential
         self.potential = self.calc_potential()
@@ -102,7 +102,7 @@ class RoboschoolReacher(RoboschoolMujocoXmlEnv):
         for i in range(n_states):
             obs.append(self.reset())
             states.append({"state": {"c_j": self.central_joint.current_position()[0],
-                                     "e_j": self.elbow_joint.current_relative_position()[0]},
+                                     "e_j": self.elbow_joint.current_position()[0]},
                            "target": {"x": self.jdict["target_x"].current_position()[0],
                                       "y": self.jdict["target_y"].current_position()[0]}})
 
